@@ -4,6 +4,7 @@ package com.igorcavalcanti.inventory_api.product.controller;
 import com.igorcavalcanti.inventory_api.product.dto.request.ProductRequest;
 import com.igorcavalcanti.inventory_api.product.dto.response.ProductResponse;
 import com.igorcavalcanti.inventory_api.product.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse create(@RequestBody ProductRequest request) {
+    public ProductResponse create(@Valid @RequestBody ProductRequest request) {
         return productService.create(request);
     }
 
@@ -40,7 +41,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ProductResponse update(
             @PathVariable Long id,
-            @RequestBody ProductRequest request
+            @Valid @RequestBody ProductRequest request
     ) {
         return productService.update(id, request);
     }

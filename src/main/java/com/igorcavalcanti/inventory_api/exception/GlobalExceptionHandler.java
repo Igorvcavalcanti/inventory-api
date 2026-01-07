@@ -7,6 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.stream.Collectors;
+
+
 import java.time.OffsetDateTime;
 
 @RestControllerAdvice
@@ -47,6 +51,30 @@ public class GlobalExceptionHandler {
                 "Unexpected error ocurred.",
                 request.getRequestURI()
         );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request
+    ) {
+        var fields = ex.getBindingResult().getFieldErrors().stream()
+                .map(err -> ApiError.FieldError.builder()
+                        .field(err.getField())
+                        .message(err.getDefaultMessage())
+                        .build())
+                .collect(Collectors.toList());
+
+        ApiError body = ApiError.builder()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation failed")
+                .path(request.getRequestURI())
+                .fieldErrors(fields)
+                .build();
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     private ResponseEntity<ApiError> buildError(
