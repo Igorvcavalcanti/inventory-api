@@ -9,6 +9,7 @@ import com.igorcavalcanti.inventory_api.stockmovement.dto.response.StockMovement
 import com.igorcavalcanti.inventory_api.stockmovement.entity.StockMovement;
 import com.igorcavalcanti.inventory_api.stockmovement.entity.StockMovementType;
 import com.igorcavalcanti.inventory_api.stockmovement.repository.StockMovementRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -52,10 +53,20 @@ public class StockMovementService {
                 .idempotencyKey(request.getIdempotencyKey())
                 .build();
 
-        //salva movimento e produto na mesma transacao
-        StockMovement saved = stockMovementRepository.save(movement);
+        try {
+            StockMovement saved = stockMovementRepository.save(movement);
+            return toResponse(saved);
 
-        return toResponse(saved);
+        } catch (DataIntegrityViolationException e){
+            // concorrencia: outro request inseriu o mesmo idempotencyKey
+            StockMovement saved = stockMovementRepository.findByIdempotencyKey(request.getIdempotencyKey())
+                    .orElseThrow(() -> e); // se nao achar, re-lanca (algo realmente estranho)
+
+            return toResponse(saved);
+        }
+
+
+
     }
 
     @Transactional(readOnly = true)
