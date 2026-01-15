@@ -39,6 +39,9 @@ public class StockMovement {
     @Column(nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 64)
+    private String idempotencyKey;
+
     @PrePersist
     protected void onCreate(){
         this.createdAt = OffsetDateTime.now();

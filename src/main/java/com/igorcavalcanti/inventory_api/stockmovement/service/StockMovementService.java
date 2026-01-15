@@ -24,6 +24,11 @@ public class StockMovementService {
 
     @Transactional
     public StockMovementResponse create(StockMovementRequest request) {
+
+        var existing = stockMovementRepository.findByIdempotencyKey(request.getIdempotencyKey());
+        if (existing.isPresent()){
+            return toResponse(existing.get());
+        }
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
 
@@ -44,6 +49,7 @@ public class StockMovementService {
                 .type(request.getType())
                 .quantity(qty)
                 .reason(request.getReason())
+                .idempotencyKey(request.getIdempotencyKey())
                 .build();
 
         //salva movimento e produto na mesma transacao

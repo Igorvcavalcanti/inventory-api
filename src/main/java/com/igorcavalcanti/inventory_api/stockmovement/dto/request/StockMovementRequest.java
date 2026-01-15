@@ -2,6 +2,7 @@ package com.igorcavalcanti.inventory_api.stockmovement.dto.request;
 
 import com.igorcavalcanti.inventory_api.stockmovement.entity.StockMovementType;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -21,4 +22,8 @@ public class StockMovementRequest {
 
     @Size(max = 255, message = "reason must have at most 255 characters")
     private String reason;
+
+    @NotBlank(message = "idempotencyKey is required")
+    @Size(max = 64, message = "idempotencyKey must have at most 64 cgaratcers")
+    private String idempotencyKey;
 }
