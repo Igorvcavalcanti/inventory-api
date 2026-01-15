@@ -48,7 +48,6 @@ public class StockMovementService {
 
         //salva movimento e produto na mesma transacao
         StockMovement saved = stockMovementRepository.save(movement);
-        productRepository.save(product);
 
         return toResponse(saved);
     }

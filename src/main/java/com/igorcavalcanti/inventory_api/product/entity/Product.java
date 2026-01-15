@@ -49,6 +49,9 @@ public class Product {
     @Column(nullable = false)
     private OffsetDateTime updatedAt;
 
+    @Version
+    private Long version;
+
 
     @PrePersist
     protected void onCreate(){
