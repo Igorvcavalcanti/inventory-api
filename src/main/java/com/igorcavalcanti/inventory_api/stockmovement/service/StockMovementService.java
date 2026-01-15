@@ -40,7 +40,7 @@ public class StockMovementService {
             if (current < qty) {
                 throw new InsufficientStockException(product.getId(), current, qty);
             }
-            product.setCurrentStock(current = qty);
+            product.setCurrentStock(current - qty);
         } else {
             product.setCurrentStock(product.getCurrentStock() + qty);
         }
