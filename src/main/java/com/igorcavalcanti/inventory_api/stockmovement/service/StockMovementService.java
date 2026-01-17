@@ -28,7 +28,11 @@ public class StockMovementService {
 
         var existing = stockMovementRepository.findByIdempotencyKey(request.getIdempotencyKey());
         if (existing.isPresent()){
-            return toResponse(existing.get());
+            StockMovement movement = existing.get();
+            Integer currentStock = productRepository.findById(movement.getProduct().getId())
+                    .orElseThrow(() -> new ProductNotFoundException(movement.getProduct().getId()))
+                    .getCurrentStock();
+            return toResponse(movement, currentStock);
         }
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
@@ -55,14 +59,14 @@ public class StockMovementService {
 
         try {
             StockMovement saved = stockMovementRepository.save(movement);
-            return toResponse(saved);
+            return toResponse(saved, product.getCurrentStock());
 
         } catch (DataIntegrityViolationException e){
             // concorrencia: outro request inseriu o mesmo idempotencyKey
             StockMovement saved = stockMovementRepository.findByIdempotencyKey(request.getIdempotencyKey())
                     .orElseThrow(() -> e); // se nao achar, re-lanca (algo realmente estranho)
 
-            return toResponse(saved);
+            return toResponse(saved, product.getCurrentStock());
         }
 
 
@@ -83,10 +87,12 @@ public class StockMovementService {
             page = stockMovementRepository.findAll(pageable);
         }
 
-        return  page.map(this::toResponse);
+        return page.map(m -> toResponse(m, m.getProduct().getCurrentStock())
+        );
+
     }
 
-    private StockMovementResponse toResponse(StockMovement movement) {
+    private StockMovementResponse toResponse(StockMovement movement, Integer currentStock) {
         return StockMovementResponse.builder()
                 .id(movement.getId())
                 .productId(movement.getProduct().getId())
@@ -94,6 +100,7 @@ public class StockMovementService {
                 .quantity(movement.getQuantity())
                 .reason(movement.getReason())
                 .createdAt(movement.getCreatedAt())
+                .currentStock(currentStock)
                 .build();
     }
 }

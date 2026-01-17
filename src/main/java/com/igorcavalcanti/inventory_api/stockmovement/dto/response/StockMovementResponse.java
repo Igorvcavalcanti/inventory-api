@@ -16,4 +16,5 @@ public class StockMovementResponse {
     private Integer quantity;
     private String reason;
     private OffsetDateTime createdAt;
+    private Integer currentStock;
 }
