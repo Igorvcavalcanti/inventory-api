@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -34,7 +35,7 @@ public class ProductControllerWebTest {
         String body = """
         {
           "name": "Produto Teste",
-          "sku": "SKU-TEST-001",
+          "sku": "%s",
           "description": "Produto apenas para testes",
           "unitCost": 10.00,
           "unitPrice": 15.00
@@ -47,7 +48,7 @@ public class ProductControllerWebTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Produto Teste"))
-                .andExpect(jsonPath("$.sku").value("SKU-TEST-001"))
+                .andExpect(jsonPath("$.sku").value(sku))
                 .andExpect(jsonPath("$.currentStock").value(0))
                 .andExpect(jsonPath("$.active").value(true));
     }
