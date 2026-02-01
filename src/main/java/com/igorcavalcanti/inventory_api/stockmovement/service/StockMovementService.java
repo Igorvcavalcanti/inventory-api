@@ -27,14 +27,12 @@ public class StockMovementService {
     public StockMovementResponse create(StockMovementRequest request) {
 
         var existing = stockMovementRepository.findByIdempotencyKey(request.getIdempotencyKey());
-        if (existing.isPresent()){
-            StockMovement movement = existing.get();
-            Integer currentStock = productRepository.findById(movement.getProduct().getId())
-                    .orElseThrow(() -> new ProductNotFoundException(movement.getProduct().getId()))
-                    .getCurrentStock();
-            return toResponse(movement, currentStock);
+        if (existing.isPresent()) {
+            var saved = existing.get();
+            return toResponse(saved, saved.getProduct().getCurrentStock());
         }
-        Product product = productRepository.findById(request.getProductId())
+
+        var product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
 
         int qty = request.getQuantity();
@@ -68,9 +66,6 @@ public class StockMovementService {
 
             return toResponse(saved, product.getCurrentStock());
         }
-
-
-
     }
 
     @Transactional(readOnly = true)
