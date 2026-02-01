@@ -2,7 +2,6 @@ package com.igorcavalcanti.inventory_api.exception;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.validation.FieldError;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -24,5 +23,4 @@ public class ApiError {
         private String field;
         private String message;
     }
-
 }
