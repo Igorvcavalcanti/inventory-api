@@ -23,3 +23,9 @@ server:
 logging:
   level:
     org.springframework.web: DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger
+  api-docs:
+    path: /openapi
